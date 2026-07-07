@@ -1,5 +1,68 @@
-import { marked } from "marked";
+import { marked, Lexer } from "marked";
+import type { Tokens } from "marked";
 import { escapeHtml } from "./util";
+
+/**
+ * Obsidian コールアウト（> [!note] タイトル …）対応。
+ * 未知のタイプは note 扱い。折りたたみ記法（[!note]- / [!note]+）は通常表示。
+ */
+type CalloutStyle = { icon: string; palette: "blue" | "green" | "yellow" | "red" };
+
+const CALLOUTS: Record<string, CalloutStyle> = {
+  note: { icon: "📝", palette: "blue" },
+  info: { icon: "ℹ️", palette: "blue" },
+  abstract: { icon: "📋", palette: "blue" },
+  summary: { icon: "📋", palette: "blue" },
+  tldr: { icon: "📋", palette: "blue" },
+  todo: { icon: "☑️", palette: "blue" },
+  question: { icon: "❓", palette: "blue" },
+  help: { icon: "❓", palette: "blue" },
+  faq: { icon: "❓", palette: "blue" },
+  quote: { icon: "💬", palette: "blue" },
+  cite: { icon: "💬", palette: "blue" },
+  example: { icon: "🔎", palette: "blue" },
+  tip: { icon: "💡", palette: "green" },
+  hint: { icon: "💡", palette: "green" },
+  success: { icon: "✅", palette: "green" },
+  check: { icon: "✅", palette: "green" },
+  done: { icon: "✅", palette: "green" },
+  warning: { icon: "⚠️", palette: "yellow" },
+  caution: { icon: "⚠️", palette: "yellow" },
+  attention: { icon: "⚠️", palette: "yellow" },
+  important: { icon: "❗", palette: "yellow" },
+  danger: { icon: "🔥", palette: "red" },
+  error: { icon: "🔥", palette: "red" },
+  failure: { icon: "❌", palette: "red" },
+  fail: { icon: "❌", palette: "red" },
+  missing: { icon: "❌", palette: "red" },
+  bug: { icon: "🐛", palette: "red" },
+};
+
+// 1行目: [!type] / [!type]- / [!type]+ （後ろにタイトル任意）、2行目以降が本文
+const CALLOUT_RE = /^\[!([\w-]+)\][+-]?(?:[ \t]+([^\n]*))?[ \t]*(?:\n([\s\S]*))?$/;
+
+marked.use({
+  renderer: {
+    blockquote(token: Tokens.Blockquote): string {
+      const m = token.text.match(CALLOUT_RE);
+      if (!m) {
+        return `<blockquote>\n${this.parser.parse(token.tokens)}</blockquote>\n`;
+      }
+      const type = m[1].toLowerCase();
+      const style = CALLOUTS[type] ?? CALLOUTS.note;
+      const titleMd = (m[2] ?? "").trim() || type.charAt(0).toUpperCase() + type.slice(1);
+      const bodyMd = m[3] ?? "";
+      const titleHtml = this.parser.parseInline(Lexer.lexInline(titleMd));
+      const bodyHtml = bodyMd.trim()
+        ? `<div class="callout-body">\n${this.parser.parse(Lexer.lex(bodyMd, { gfm: true }))}</div>\n`
+        : "";
+      return `<div class="callout callout-${style.palette}">
+<div class="callout-title"><span class="callout-icon">${style.icon}</span>${titleHtml}</div>
+${bodyHtml}</div>
+`;
+    },
+  },
+});
 
 /**
  * [[リンク]] を同一サイト内のファイル群で解決する。
@@ -57,6 +120,21 @@ export async function renderMarkdown(
   th { background: #eceff4; }
   blockquote { border-left: 4px solid #b8c9dc; margin-left: 0; padding-left: 1rem; color: #5c6b7f; }
   img { max-width: 100%; }
+  .callout { border-radius: 8px; padding: .8rem 1rem; margin: 1rem 0;
+             border-left: 4px solid; background: #eef4f9; }
+  .callout-title { font-weight: 600; display: flex; align-items: baseline; gap: .5em; }
+  .callout-icon { flex: none; }
+  .callout-body { margin-top: .4rem; }
+  .callout-body > :first-child { margin-top: 0; }
+  .callout-body > :last-child { margin-bottom: 0; }
+  .callout-blue { border-color: #7ba7cc; background: #edf4fa; }
+  .callout-blue > .callout-title { color: #4a6f96; }
+  .callout-green { border-color: #a3be8c; background: #f1f6ec; }
+  .callout-green > .callout-title { color: #5f7a4a; }
+  .callout-yellow { border-color: #e0c580; background: #fbf6e9; }
+  .callout-yellow > .callout-title { color: #93763a; }
+  .callout-red { border-color: #d08a92; background: #faf0f1; }
+  .callout-red > .callout-title { color: #a04b56; }
 </style>
 </head>
 <body>

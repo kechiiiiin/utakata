@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "utakata",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-01",
+  "account_id": "8111e3c4d66e382c752dc578be927069",
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "0379b28cfe66432099f52ae3554ebd3b",
+      "preview_id": "641e763e4dd042e2b4be42a00a6333fc"
+    }
+  ],
+  "vars": {
+    "ALLOWED_EMAILS": "kechiiiiin@gmail.com"
+  }
+}

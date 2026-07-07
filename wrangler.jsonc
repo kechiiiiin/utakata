@@ -4,6 +4,9 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-07-01",
   "account_id": "8111e3c4d66e382c752dc578be927069",
+  "routes": [
+    { "pattern": "utakata.kechiiiiin.com", "custom_domain": true }
+  ],
   "kv_namespaces": [
     {
       "binding": "KV",

@@ -33,7 +33,7 @@ SESSION_SECRET=dev-only-secret-not-for-production
 2. 「OAuth 同意画面」を設定（外部 / アプリ名 utakata / 自分のメールで可。テストユーザーに kechiiiiin@gmail.com を追加）
 3. 「認証情報を作成 → OAuth クライアント ID → ウェブアプリケーション」
 4. **承認済みのリダイレクト URI** に以下を登録:
-   - 本番: `https://utakata.kechiiiiin.workers.dev/auth/callback`
+   - 本番: `https://utakata.kechiiiiin.com/auth/callback`
    - （ローカルで実 OAuth を試す場合のみ）`http://localhost:8787/auth/callback`
 5. 発行された クライアント ID / クライアント シークレット を控える
 

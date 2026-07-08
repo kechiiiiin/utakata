@@ -1,4 +1,5 @@
 import { escapeHtml } from "./util";
+import { qrClientScript } from "./qr-client";
 
 const baseStyle = `
   :root { --ink: #3b4252; --accent: #7ba7cc; --accent-dark: #5e81ac; --mist: #eef4f9; }
@@ -140,9 +141,17 @@ export function createPage(email: string): string {
   <button id="publish">公開する</button>
   <div id="result" style="display:none; margin-top:1.2rem; background:var(--mist); border-radius:8px; padding:1rem;">
     <div class="muted">公開URL</div>
-    <div style="display:flex; gap:.5rem; align-items:center; margin-top:.3rem;">
-      <input type="text" id="result-url" readonly>
+    <div style="display:flex; gap:.5rem; align-items:center; margin-top:.3rem; flex-wrap:wrap;">
+      <input type="text" id="result-url" readonly style="flex:1; min-width:12rem;">
       <button class="ghost" onclick="copyUrl()">コピー</button>
+      <a id="result-open" class="btn" href="#" target="_blank" rel="noopener">開く</a>
+    </div>
+    <div style="margin-top:.5rem;">
+      <a id="result-link" href="#" target="_blank" rel="noopener" style="color:var(--accent-dark); word-break:break-all; font-size:.9rem;"></a>
+    </div>
+    <div style="display:flex; justify-content:center; margin-top:1rem;">
+      <a id="result-qr" href="#" target="_blank" rel="noopener" title="スマホで開く"
+         style="display:inline-block; background:#fff; padding:.6rem; border:1px solid #dde8f1; border-radius:10px; line-height:0;"></a>
     </div>
   </div>
   <div id="error" style="display:none; color:#bf616a; margin-top:1rem;"></div>
@@ -220,11 +229,24 @@ $("publish").addEventListener("click", async () => {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) { showError(data.error || ("エラー: " + res.status)); return; }
-  $("result").style.display = "block";
-  $("result-url").value = data.url;
+  showResult(data.url);
 });
+function showResult(url) {
+  $("result").style.display = "block";
+  $("result-url").value = url;
+  $("result-open").href = url;
+  const link = $("result-link");
+  link.href = url;
+  link.textContent = url;
+  const qr = $("result-qr");
+  qr.href = url;
+  try { qr.innerHTML = window.utakataQrSvg(url, 180); }
+  catch (e) { qr.style.display = "none"; }
+  $("result").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
 function showError(msg) { $("error").textContent = msg; $("error").style.display = "block"; }
 function copyUrl() { navigator.clipboard.writeText($("result-url").value); }
+${qrClientScript}
 </script>`;
   return page("utakata — 作成", body);
 }

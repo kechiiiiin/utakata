@@ -48,7 +48,7 @@ ${extraHead}
 <main>
 <header class="site">
   <h1><a href="/">utakata</a></h1>
-  <span class="tagline">泡沫 — 生まれて、漂って、消えるサイト</span>
+  <span class="tagline">泡沫 — 泡のように消えるサイト</span>
   <nav><a href="/">作成</a><a href="/manage">一覧</a><a href="/auth/logout">ログアウト</a></nav>
 </header>
 ${body}

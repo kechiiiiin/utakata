@@ -146,9 +146,6 @@ export function createPage(email: string): string {
       <button class="ghost" onclick="copyUrl()">コピー</button>
       <a id="result-open" class="btn" href="#" target="_blank" rel="noopener">開く</a>
     </div>
-    <div style="margin-top:.5rem;">
-      <a id="result-link" href="#" target="_blank" rel="noopener" style="color:var(--accent-dark); word-break:break-all; font-size:.9rem;"></a>
-    </div>
     <div style="display:flex; justify-content:center; margin-top:1rem;">
       <a id="result-qr" href="#" target="_blank" rel="noopener" title="スマホで開く"
          style="display:inline-block; background:#fff; padding:.6rem; border:1px solid #dde8f1; border-radius:10px; line-height:0;"></a>
@@ -235,9 +232,6 @@ function showResult(url) {
   $("result").style.display = "block";
   $("result-url").value = url;
   $("result-open").href = url;
-  const link = $("result-link");
-  link.href = url;
-  link.textContent = url;
   const qr = $("result-qr");
   qr.href = url;
   try { qr.innerHTML = window.utakataQrSvg(url, 180); }

@@ -72,11 +72,22 @@ export async function verifyState(secret: string, state: string): Promise<boolea
   return timingSafeEqual(expected, state);
 }
 
-function timingSafeEqual(a: string, b: string): boolean {
+export function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let diff = 0;
   for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return diff === 0;
+}
+
+/** Bearer トークン（API_TOKEN）を検証し、一致すれば所有者セッションを返す。無効なら null。 */
+export function apiTokenSession(c: Ctx, env: Env): Session | null {
+  const m = c.req.header("Authorization")?.match(/^Bearer\s+(.+)$/);
+  const token = m?.[1];
+  if (!token || !env.API_TOKEN) return null;
+  if (!timingSafeEqual(token, env.API_TOKEN)) return null;
+  const sub = env.API_OWNER_SUB, email = env.API_OWNER_EMAIL;
+  if (!sub || !email) return null;
+  return { sub, email, expiresAt: Date.now() + 60_000 };
 }
 
 export function redirectUri(c: Ctx): string {

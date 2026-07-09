@@ -5,6 +5,9 @@ export type Env = {
   GOOGLE_CLIENT_SECRET?: string;
   SESSION_SECRET?: string;
   DEV_AUTH_BYPASS?: string;
+  API_TOKEN?: string; // secret（wrangler secret）。未設定なら Bearer 認証は無効
+  API_OWNER_SUB?: string; // var。トークン作成者に紐付ける Google sub
+  API_OWNER_EMAIL?: string; // var。同上 email
 };
 
 export type SiteFile = {

@@ -65,6 +65,17 @@ npx wrangler deploy
 | `DELETE /api/sites/:id` | 削除 |
 | `GET /s/:id/` `GET /s/:id/:path` | 公開配信（認証不要・`X-Robots-Tag: noindex`） |
 
+### API トークンでの作成（`POST /api/sites` のみ）
+
+`POST /api/sites` は Cookie セッションに加え、`Authorization: Bearer <API_TOKEN>` でも作成できる（コマンドライン用途）。トークンは `wrangler secret put API_TOKEN` で設定する。`API_TOKEN` 未設定時は Bearer 認証は無効で、従来どおり Cookie のみになる。
+
+```
+curl -X POST https://utakata.kechiiiiin.com/api/sites \
+  -H "Authorization: Bearer $UTAKATA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"files":[{"path":"index.md","content":"# hello"}],"expiresIn":86400}'
+```
+
 ## KV キー設計
 
 | キー | 値 | TTL |

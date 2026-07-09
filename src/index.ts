@@ -11,6 +11,7 @@ import {
 } from "./util";
 import {
   allowedEmails,
+  apiTokenSession,
   createSession,
   destroySession,
   exchangeCode,
@@ -153,8 +154,8 @@ async function getOwnedMeta(c: Ctx, session: Session): Promise<SiteMeta | null> 
 // ---------- API ----------
 
 app.post("/api/sites", async (c) => {
-  const session = await requireSession(c);
-  if (!session) return c.json({ error: "ログインが必要です" }, 401);
+  const session = apiTokenSession(c, c.env) ?? await requireSession(c);
+  if (!session) return c.json({ error: "認証が必要です" }, 401);
 
   const body = await c.req.json().catch(() => null);
   if (!body) return c.json({ error: "JSON が不正です" }, 400);

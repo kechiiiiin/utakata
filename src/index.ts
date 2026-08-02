@@ -191,8 +191,8 @@ app.post("/api/sites", async (c) => {
 });
 
 app.get("/api/sites", async (c) => {
-  const session = await requireSession(c);
-  if (!session) return c.json({ error: "ログインが必要です" }, 401);
+  const session = apiTokenSession(c, c.env) ?? await requireSession(c);
+  if (!session) return c.json({ error: "認証が必要です" }, 401);
 
   const digests = await loadDigests(c.env.KV, session.sub);
   // lazy cleanup: meta が消えている（期限切れ）id を一覧から掃除
@@ -205,8 +205,8 @@ app.get("/api/sites", async (c) => {
 });
 
 app.put("/api/sites/:id", async (c) => {
-  const session = await requireSession(c);
-  if (!session) return c.json({ error: "ログインが必要です" }, 401);
+  const session = apiTokenSession(c, c.env) ?? await requireSession(c);
+  if (!session) return c.json({ error: "認証が必要です" }, 401);
   const meta = await getOwnedMeta(c, session);
   if (!meta) return c.json({ error: "サイトが見つかりません" }, 404);
 

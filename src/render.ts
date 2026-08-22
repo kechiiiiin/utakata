@@ -43,6 +43,12 @@ const CALLOUT_RE = /^\[!([\w-]+)\][+-]?(?:[ \t]+([^\n]*))?[ \t]*(?:\n([\s\S]*))?
 
 marked.use({
   renderer: {
+    // GFM のタスクリスト（- [ ] / - [x]）。marked は既定で disabled を付けるが、
+    // 泡沫では「当日その場で潰していくチェックリスト」として使いたいので押せるようにする。
+    // チェック状態は閲覧端末の localStorage にのみ残る（サーバへは送らない）。
+    checkbox({ checked }: Tokens.Checkbox): string {
+      return `<input type="checkbox" class="task-check"${checked ? " checked" : ""}> `;
+    },
     blockquote(token: Tokens.Blockquote): string {
       const m = token.text.match(CALLOUT_RE);
       if (!m) {
@@ -139,6 +145,24 @@ export async function renderMarkdown(
 </head>
 <body>
 ${body}
+<script>
+(function(){
+  var boxes=[].slice.call(document.querySelectorAll('input.task-check'));
+  if(!boxes.length) return;
+  var KEY='utakata-check:'+location.pathname;
+  var saved={};
+  try{ saved=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){}
+  function save(){
+    var o={};
+    boxes.forEach(function(b,i){ if(b.checked) o[i]=1; });
+    try{ localStorage.setItem(KEY,JSON.stringify(o)); }catch(e){}
+  }
+  boxes.forEach(function(b,i){
+    if(saved[i]) b.checked=true;
+    b.addEventListener('change',save);
+  });
+})();
+</script>
 </body>
 </html>`;
 }
